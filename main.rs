@@ -51,13 +51,11 @@ struct MessagePayload {
 }
 
 async fn fetch_and_update_note(nuke: bool, router: String, id: String, new_text: String) -> Result<(), String> {
-    let (id, subproject) = id.split_once('_').expect("ID must contain an underscore");
-    let url = if id.len() == 37 { // id: "p" + crypto.randomUUID(), in resume code = 37
-        format!("http://{}/api/projects/{}/subprojects/{}/notes", router, id, subproject)
+    let url = if let Some((project_id, subproject_id)) = id.split_once('_') {
+        format!("http://{}/api/projects/{}/subprojects/{}/notes", router, project_id, subproject_id)
     } else {
         format!("http://{}/api/skills/{}/notes", router, id)
     };
-    
     let client = reqwest::Client::new();
     println!("Fetching current note state from {}...", url);
     
